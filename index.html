@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vibecode-rng</title>
+<meta name="description" content="Pull the lever. Get a random thing to vibecode. A game, a lesson, or a dash of rainbow.">
+<meta name="theme-color" content="#3b2412">
+<meta property="og:type" content="website">
+<meta property="og:title" content="vibecode-rng: can I vibecode it?">
+<meta property="og:description" content="A 1971 slot machine that picks something for you to vibecode. A game, a lesson, or a dash of rainbow.">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="assets/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Rye&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/phonograph.css">
+</head>
+<body>
+
+<div class="bar">
+  <button class="brass-btn small" id="sfxBtn" aria-pressed="false" title="Toggle sound effects">SFX: ON</button>
+  <button class="brass-btn small" id="musicBtn" data-music-toggle aria-pressed="false" title="Toggle jazz">MUSIC: ON</button>
+</div>
+
+<header>
+  <h1>vibecode-rng</h1>
+  <p class="tag">Can I vibecode it?</p>
+  <div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+</header>
+
+<main>
+  <div class="scene" id="scene">
+    <div class="rig" id="rig">
+      <div class="stage">
+        <div class="cabinet" id="cabinet">
+          <div class="back3d"></div>
+          <div class="side l"></div>
+          <div class="side r"></div>
+          <div class="top3d"></div>
+
+          <div class="marquee">
+            <div class="bulbs top" id="bulbsTop"></div>
+            <b>★ VIBE-O-MATIC ★</b>
+            <div class="bulbs bot" id="bulbsBot"></div>
+          </div>
+
+          <div class="window">
+            <div class="glass" id="glass">
+              <div class="blurwrap" id="blurwrap"><div class="drum" id="drum"></div></div>
+              <div class="payline"></div>
+              <div class="sheen"></div>
+            </div>
+            <div class="arrow l"></div><div class="arrow r"></div>
+          </div>
+
+          <div class="tray"><span>♦ PRIZE TRAY ♦</span></div>
+          <div class="plate">
+            <button class="brass-btn" id="pullBtn">PULL THE LEVER</button>
+          </div>
+        </div>
+
+        <div class="lever" id="lever" aria-label="Slot machine lever">
+          <div class="mount"></div>
+          <div class="pivot" id="pivot">
+            <div class="arm" id="arm" role="button" tabindex="0" aria-label="Pull the lever">
+              <div class="rod"></div>
+              <div class="knob attn" id="knob"></div>
+            </div>
+            <div class="hub"></div>
+          </div>
+          <div class="hint" id="hint">pull me ↓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket-wrap">
+    <article class="ticket hidden" id="ticket" aria-live="polite">
+      <div class="rainbow-bar"></div>
+      <div class="top"><span id="tNo">TICKET №0001</span><span class="badge" id="tBadge">GAME</span></div>
+      <h2 id="tTitle"></h2>
+      <p id="tBlurb"></p>
+      <div class="prompt-label">Starter prompt — paste it into your AI</div>
+      <div class="prompt" id="tPrompt"></div>
+      <div class="actions">
+        <button class="brass-btn" id="copyBtn">COPY PROMPT</button>
+        <button class="brass-btn" id="againBtn">SPIN AGAIN</button>
+      </div>
+    </article>
+  </div>
+
+  <section class="history">
+    <h3>Past Pulls</h3>
+    <ul id="history"><li class="empty">Nothing yet. Go on, pull it.</li></ul>
+  </section>
+</main>
+
+<footer>est. 1971 · vibecode responsibly · space bar also pulls · tap the phonograph for music</footer>
+
+<!-- ================= PHONOGRAPH (loops forever) ================= -->
+<div class="phono" id="phono" data-music-toggle role="button" tabindex="0" aria-label="Phonograph. Click to toggle the jazz music.">
+  <div class="bubble" id="bubble">tap anywhere for jazz ♪</div>
+  <div class="notes" aria-hidden="true">
+    <span style="--x:19%;--y:15%;--dl:0s;--dx:-14px">♪</span>
+    <span style="--x:26%;--y:7%;--dl:1.2s;--dx:-30px">♫</span>
+    <span style="--x:15%;--y:20%;--dl:2.4s;--dx:-6px">♩</span>
+    <span style="--x:23%;--y:11%;--dl:3.6s;--dx:-22px">♬</span>
+  </div>
+<svg viewBox="0 0 340 312" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="phWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a86a32"/><stop offset=".45" stop-color="#7a4620"/><stop offset="1" stop-color="#47260d"/></linearGradient>
+    <linearGradient id="phWoodSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3114"/><stop offset="1" stop-color="#2f180a"/></linearGradient>
+    <linearGradient id="phDeck" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c58a46"/><stop offset=".6" stop-color="#8a5226"/><stop offset="1" stop-color="#6b3d19"/></linearGradient>
+    <linearGradient id="phBrass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a4d12"/><stop offset=".3" stop-color="#f6dc92"/><stop offset=".55" stop-color="#d9a441"/><stop offset="1" stop-color="#6a400c"/></linearGradient>
+    <linearGradient id="phBrassV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc92"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#7a4d12"/></linearGradient>
+    <linearGradient id="phHorn" gradientUnits="userSpaceOnUse" x1="110.4" y1="136" x2="163.6" y2="42">
+      <stop offset="0" stop-color="#6a3f0e"/><stop offset=".22" stop-color="#c8923a"/><stop offset=".42" stop-color="#fff0b8"/><stop offset=".6" stop-color="#d9a441"/><stop offset="1" stop-color="#5e370a"/>
+    </linearGradient>
+    <radialGradient id="phBell" cx=".5" cy=".5" r=".55"><stop offset="0" stop-color="#150a02"/><stop offset=".6" stop-color="#3a2108"/><stop offset="1" stop-color="#8a5a16"/></radialGradient>
+    <linearGradient id="phChrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fafaf5"/><stop offset=".5" stop-color="#b9b9b0"/><stop offset="1" stop-color="#6d6d66"/></linearGradient>
+    <radialGradient id="phFelt" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#6b7a2f"/><stop offset="1" stop-color="#3b4618"/></radialGradient>
+    <radialGradient id="phLamp" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffd0a0"/><stop offset=".4" stop-color="#e0541e"/><stop offset="1" stop-color="#7a1a06"/></radialGradient>
+    <clipPath id="phRecClip"><ellipse cx="172" cy="200" rx="76" ry="13"/></clipPath>
+    <pattern id="phCloth" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#2f1a07"/><path d="M0 0L3 3M3 0L0 3" stroke="#4a2c0e" stroke-width=".5"/></pattern>
+  </defs>
+
+  <!-- floor shadow -->
+  <ellipse cx="172" cy="303" rx="124" ry="7" fill="rgba(0,0,0,.5)"/>
+
+  <!-- ================= CABINET ================= -->
+  <g>
+    <!-- bun feet -->
+    <rect x="72" y="290" width="18" height="9" rx="4" fill="#2a1405"/><rect x="232" y="290" width="18" height="9" rx="4" fill="#2a1405"/>
+    <rect x="75" y="291" width="5" height="3" rx="1.5" fill="#6b3f1d"/><rect x="235" y="291" width="5" height="3" rx="1.5" fill="#6b3f1d"/>
+    <!-- right side face -->
+    <polygon class="ph-hit" points="256,214 278,184 278,262 256,292" fill="url(#phWoodSide)" stroke="#1d0d03" stroke-width="1.5"/>
+    <path d="M262 224 L272 210 M262 246 L272 232 M262 268 L272 254" stroke="#1a0b03" stroke-opacity=".25" stroke-width=".8"/>
+    <!-- front face -->
+    <rect class="ph-hit" x="66" y="214" width="190" height="78" fill="url(#phWood)" stroke="#1d0d03" stroke-width="1.5"/>
+    <path d="M66.4 243.4 C140.5 240.4 180.5 246.5 254.7 243.4" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1" fill="none"/>
+      <path d="M75.5 283.9 C109.8 281.8 149.8 286.1 184.2 283.9" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.6" fill="none"/>
+      <path d="M83.4 225.5 C142.7 222.2 182.7 228.7 242 225.5" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1" fill="none"/>
+      <path d="M82.5 245 C112.4 243 152.4 246.9 182.3 245" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.9" fill="none"/>
+      <path d="M108.2 235.4 C140.7 233.5 180.7 237.3 213.2 235.4" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1.1" fill="none"/>
+      <path d="M77.9 282.8 C114.5 279.7 154.5 286 191.2 282.8" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.6" fill="none"/>
+      <path d="M80.2 268.2 C110.7 265.4 150.7 271 181.3 268.2" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.7" fill="none"/>
+      <path d="M77.9 247.6 C120.2 245.9 160.2 249.2 202.5 247.6" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.7" fill="none"/>
+      <path d="M106.4 253.6 C134.4 250.7 174.4 256.5 202.4 253.6" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.6" fill="none"/>
+      <path d="M93.3 242.2 C134.8 240.1 174.8 244.2 216.2 242.2" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.7" fill="none"/>
+      <path d="M95.6 229.7 C141.5 226.3 181.5 233.1 227.4 229.7" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.9" fill="none"/>
+      <path d="M75 275.3 C125.4 273.7 165.4 276.9 215.8 275.3" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.9" fill="none"/>
+      <path d="M80.6 254.3 C119.6 251.5 159.6 257 198.5 254.3" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1" fill="none"/>
+      <path d="M88.2 283 C119 280.2 159 285.7 189.8 283" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="0.9" fill="none"/>
+      <path d="M79.2 236.7 C127.4 233.6 167.4 239.8 215.5 236.7" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1" fill="none"/>
+      <path d="M81.1 242.7 C129 239.9 169 245.5 216.9 242.7" stroke="#1a0b03" stroke-opacity="0.16" stroke-width="1" fill="none"/>
+    <!-- top moulding + base moulding -->
+    <rect x="62" y="212" width="198" height="9" rx="1.5" fill="url(#phBrassV)" opacity=".0"/>
+    <rect x="62" y="212" width="198" height="10" rx="2" fill="#8a5226" stroke="#1d0d03" stroke-width="1.2"/>
+    <rect x="63" y="213" width="196" height="2.4" fill="#f1c37a" opacity=".55"/>
+    <rect x="60" y="280" width="202" height="12" rx="2" fill="#5a3114" stroke="#1d0d03" stroke-width="1.2"/>
+    <rect x="61" y="281" width="200" height="2" fill="#f1c37a" opacity=".35"/>
+    <!-- brass corner caps -->
+    <path d="M62 212h11v6l-5 4h-6z M249 212h11v10h-6l-5-4z" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width=".8"/>
+
+    <!-- speaker grille panel -->
+    <rect x="80" y="230" width="116" height="46" rx="5" fill="#2a1405" stroke="#d9a441" stroke-width="1.6"/>
+    <rect x="84" y="234" width="108" height="38" rx="3" fill="url(#phCloth)"/>
+    <g stroke="#d9a441" stroke-opacity=".5" stroke-width=".9" fill="none"><path d="M90 236V268"/><path d="M95 236V268"/><path d="M100 236V268"/><path d="M105 236V268"/><path d="M110 236V268"/><path d="M115 236V268"/><path d="M120 236V268"/><path d="M125 236V268"/><path d="M130 236V268"/><path d="M135 236V268"/><path d="M140 236V268"/><path d="M145 236V268"/><path d="M150 236V268"/><path d="M155 236V268"/><path d="M160 236V268"/><path d="M165 236V268"/><path d="M170 236V268"/><path d="M175 236V268"/><path d="M180 236V268"/><path d="M185 236V268"/></g>
+    <circle cx="137" cy="252" r="21" fill="#2a1405" stroke="#d9a441" stroke-width="1.4"/>
+    <g stroke="#f1d28a" stroke-width="1.1" stroke-linecap="round"><path d="M145 252 L156 252"/><path d="M144.4 255.1 L154.6 259.3"/><path d="M142.7 257.7 L150.4 265.4"/><path d="M140.1 259.4 L144.3 269.6"/><path d="M137 260 L137 271"/><path d="M133.9 259.4 L129.7 269.6"/><path d="M131.3 257.7 L123.6 265.4"/><path d="M129.6 255.1 L119.4 259.3"/><path d="M129 252 L118 252"/><path d="M129.6 248.9 L119.4 244.7"/><path d="M131.3 246.3 L123.6 238.6"/><path d="M133.9 244.6 L129.7 234.4"/><path d="M137 244 L137 233"/><path d="M140.1 244.6 L144.3 234.4"/><path d="M142.7 246.3 L150.4 238.6"/><path d="M144.4 248.9 L154.6 244.7"/></g>
+    <circle cx="137" cy="252" r="6" fill="url(#phBrass)" stroke="#4a2a0a" stroke-width=".8"/>
+
+    <!-- name plate + jewel lamp panel -->
+    <rect x="204" y="230" width="42" height="46" rx="4" fill="#3b1f0b" stroke="#d9a441" stroke-width="1.2"/>
+    <rect x="208" y="236" width="34" height="13" rx="1.5" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width=".8"/>
+    <text x="225" y="244" text-anchor="middle" font-family="'Alfa Slab One',serif" font-size="4.4" textLength="29" lengthAdjust="spacingAndGlyphs" fill="#3b2008">VIBE-O-PHONE</text>
+    <circle cx="225" cy="262" r="8" fill="url(#phBrass)" stroke="#4a2a0a" stroke-width=".9"/>
+    <circle class="ph-lamp" cx="225" cy="262" r="5.4" fill="url(#phLamp)"/>
+    <circle cx="223.4" cy="260.2" r="1.5" fill="#fff" opacity=".7"/>
+  </g>
+
+  <!-- ================= HORN (behind the platter) ================= -->
+  <g>
+    <!-- gooseneck tube -->
+    <path d="M208 130 C240 126 252 152 232 192" fill="none" stroke="#4a2a0a" stroke-width="15" stroke-linecap="round"/>
+    <path d="M208 130 C240 126 252 152 232 192" fill="none" stroke="url(#phBrass)" stroke-width="11" stroke-linecap="round"/>
+    <path d="M208 130 C240 126 252 152 232 192" fill="none" stroke="#fff5c8" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" transform="translate(-2 -2)"/>
+    <ellipse cx="236" cy="150" rx="8.5" ry="3.2" transform="rotate(62 236 150)" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width=".8"/>
+    <ellipse cx="233" cy="176" rx="9" ry="3.2" transform="rotate(95 233 176)" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width=".8"/>
+    <ellipse cx="231" cy="192" rx="15" ry="5" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width="1"/>
+
+    <!-- sound waves rolling out of the bell -->
+    <g transform="translate(68 50) rotate(-60.5)" fill="none" stroke="#fbe7a8" stroke-width="1.6">
+      <ellipse class="ph-wave" cx="0" cy="0" rx="50.0" ry="18" style="animation-delay:0s"/>
+      <ellipse class="ph-wave" cx="0" cy="0" rx="50.0" ry="18" style="animation-delay:.71s"/>
+      <ellipse class="ph-wave" cx="0" cy="0" rx="50.0" ry="18" style="animation-delay:1.43s"/>
+    </g>
+
+    <!-- the horn itself; it breathes with the beat -->
+    <g class="ph-horn ph-hit">
+      <path d="M209 122.8 L204.2 119.7 L199.4 116.6 L194.7 113.5 L190 110.3 L185.3 107.1 L180.7 103.8 L176 100.5 L171.4 97.1 L166.9 93.6 L162.4 90.1 L157.9 86.6 L153.4 82.9 L149 79.2 L144.7 75.4 L140.4 71.5 L136.1 67.5 L132 63.4 L127.9 59.2 L123.8 54.8 L119.9 50.2 L116 45.5 L112.3 40.7 L108.7 35.6 L105.1 30.3 L101.8 24.8 L98.5 19 L95.5 12.9 L92.6 6.5 L43.4 93.5 L50.4 92.7 L57.2 92.2 L63.8 92 L70.3 92 L76.6 92.3 L82.8 92.8 L89 93.5 L95 94.3 L100.9 95.4 L106.7 96.6 L112.5 97.9 L118.1 99.3 L123.8 100.9 L129.3 102.6 L134.8 104.3 L140.3 106.2 L145.7 108.1 L151.1 110.1 L156.4 112.2 L161.7 114.3 L167 116.5 L172.2 118.8 L177.4 121.1 L182.6 123.4 L187.7 125.8 L192.9 128.2 L198 130.7 L203 133.2 Z" fill="url(#phHorn)" stroke="#4e2e08" stroke-width="2" stroke-linejoin="round"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M188.4 124.7 L183.3 122.2 L178.1 119.8 L173 117.4 L167.8 115.1 L162.6 112.8 L157.3 110.5 L152.1 108.3 L146.8 106.2 L141.5 104.1 L136.1 102.1 L130.7 100.1 L125.3 98.3 L119.8 96.5 L114.2 94.8 L108.6 93.2 L102.9 91.7 L97.2 90.4 L91.4 89.1 L85.5 88.1 L79.5 87.2 L73.4 86.4 L67.2 85.9 L60.9 85.6 L54.4 85.5 L47.8 85.7" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/><path d="M189.1 123.5 L184 120.9 L178.9 118.4 L173.8 115.9 L168.7 113.5 L163.5 111.1 L158.4 108.7 L153.2 106.3 L148 104 L142.8 101.8 L137.5 99.6 L132.2 97.4 L126.9 95.3 L121.6 93.3 L116.2 91.3 L110.7 89.5 L105.2 87.7 L99.7 86 L94.1 84.4 L88.4 82.9 L82.7 81.5 L76.9 80.3 L71 79.2 L65 78.3 L58.9 77.5 L52.7 77" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/><path d="M189.8 122.2 L184.7 119.6 L179.7 117 L174.7 114.4 L169.6 111.9 L164.5 109.3 L159.4 106.8 L154.3 104.3 L149.2 101.9 L144.1 99.5 L138.9 97.1 L133.8 94.7 L128.6 92.4 L123.4 90.1 L118.1 87.9 L112.8 85.7 L107.5 83.6 L102.2 81.5 L96.8 79.6 L91.4 77.7 L85.9 75.8 L80.4 74.1 L74.8 72.5 L69.2 70.9 L63.5 69.5 L57.7 68.3" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/><path d="M190.5 120.9 L185.5 118.2 L180.5 115.5 L175.5 112.9 L170.5 110.2 L165.5 107.5 L160.5 104.9 L155.5 102.2 L150.5 99.6 L145.5 97 L140.4 94.4 L135.4 91.9 L130.3 89.3 L125.3 86.8 L120.2 84.3 L115.1 81.8 L109.9 79.3 L104.8 76.9 L99.7 74.5 L94.5 72.2 L89.3 69.9 L84.1 67.6 L78.8 65.4 L73.5 63.3 L68.2 61.2 L62.8 59.1" stroke="#fff6d0" stroke-opacity=".35" stroke-width="1.4"/><path d="M191.2 119.6 L186.3 116.9 L181.4 114.1 L176.4 111.3 L171.5 108.5 L166.6 105.7 L161.6 102.9 L156.7 100.1 L151.8 97.4 L146.9 94.6 L141.9 91.8 L137 89 L132.1 86.2 L127.1 83.4 L122.2 80.6 L117.3 77.9 L112.4 75.1 L107.4 72.3 L102.5 69.5 L97.6 66.7 L92.6 63.9 L87.7 61.1 L82.8 58.4 L77.9 55.6 L72.9 52.8 L68 50" stroke="#fff6d0" stroke-opacity=".35" stroke-width="1.4"/><path d="M191.9 118.4 L187.1 115.5 L182.2 112.6 L177.3 109.7 L172.5 106.8 L167.6 103.9 L162.7 101 L157.9 98 L153.1 95.1 L148.2 92.1 L143.4 89.1 L138.6 86.1 L133.8 83.1 L129 80.1 L124.3 77 L119.5 73.9 L114.8 70.8 L110 67.7 L105.3 64.5 L100.7 61.2 L96 58 L91.4 54.7 L86.8 51.3 L82.2 47.9 L77.7 44.4 L73.2 40.9" stroke="#fff6d0" stroke-opacity=".35" stroke-width="1.4"/><path d="M192.7 117.1 L187.8 114.1 L183 111.1 L178.2 108.1 L173.4 105.1 L168.6 102.1 L163.8 99 L159.1 95.9 L154.3 92.8 L149.6 89.7 L144.9 86.5 L140.2 83.3 L135.6 80 L130.9 76.7 L126.3 73.4 L121.7 70 L117.2 66.5 L112.7 63 L108.2 59.4 L103.8 55.8 L99.4 52 L95 48.2 L90.8 44.2 L86.5 40.2 L82.4 36 L78.3 31.7" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/><path d="M193.4 115.8 L188.6 112.8 L183.8 109.7 L179.1 106.6 L174.3 103.5 L169.6 100.4 L164.9 97.2 L160.2 93.9 L155.6 90.7 L150.9 87.4 L146.3 84 L141.8 80.6 L137.2 77.1 L132.7 73.6 L128.3 70 L123.8 66.3 L119.5 62.5 L115.2 58.6 L110.9 54.6 L106.7 50.6 L102.6 46.4 L98.5 42 L94.6 37.5 L90.7 32.9 L86.9 28 L83.3 23" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/><path d="M194.1 114.6 L189.3 111.5 L184.6 108.3 L179.9 105.1 L175.2 101.9 L170.6 98.6 L165.9 95.3 L161.3 91.9 L156.8 88.5 L152.2 85 L147.7 81.5 L143.3 77.9 L138.9 74.2 L134.5 70.4 L130.2 66.5 L126 62.5 L121.8 58.4 L117.6 54.2 L113.6 49.9 L109.6 45.4 L105.8 40.7 L102 35.9 L98.4 30.8 L94.8 25.6 L91.4 20.1 L88.2 14.3" stroke="#5e370a" stroke-opacity=".3" stroke-width="1"/>
+      </g>
+      <path class="ph-glint" d="M174 104.1 L169.3 101 L164.5 97.8 L159.8 94.6 L155.1 91.4 L150.5 88.2 L145.8 84.9 L141.2 81.5 L136.6 78.1 L132.1 74.7 L127.6 71.2 L123.1 67.6 L118.7 63.9 L114.3 60.2 L109.9 56.3 L105.7 52.4 L101.5 48.3 L97.3 44.2 L93.2 39.9 L89.2 35.4" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round" pathLength="100" stroke-dasharray="6 94"/>
+      <!-- throat collar -->
+      <g transform="translate(206 128) rotate(-60.5)">
+        <ellipse cx="0" cy="0" rx="9.5" ry="4" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width="1"/>
+        <ellipse cx="0" cy="0" rx="9.5" ry="4" fill="none" stroke="#fff3c0" stroke-opacity=".5" stroke-width=".8" transform="translate(0 -1.2)"/>
+      </g>
+      <!-- bell rim and the dark inside -->
+      <g transform="translate(68 50) rotate(-60.5)">
+        <path d="M50 0 L51 1 L51.2 1.9 L50.3 2.9 L48.6 3.7 L47 4.5 L46.2 5.4 L46.1 6.4 L46.2 7.4 L45.8 8.4 L44.4 9.2 L42.2 9.9 L39.7 10.4 L37.7 11 L36.3 11.8 L35.4 12.7 L34.2 13.7 L32.4 14.4 L29.9 14.8 L27.1 15 L24.4 15.2 L22.1 15.6 L20.1 16.2 L18.1 17 L15.9 17.6 L13.3 17.8 L10.5 17.7 L7.7 17.5 L5.1 17.4 L2.6 17.6 L0 18 L-2.7 18.4 L-5.4 18.4 L-8 18.1 L-10.3 17.5 L-12.6 16.9 L-15 16.6 L-17.7 16.6 L-20.6 16.6 L-23.3 16.5 L-25.6 16 L-27.4 15.2 L-28.9 14.3 L-30.5 13.6 L-32.7 13.1 L-35.4 12.7 L-38 12.3 L-40 11.7 L-41.2 10.8 L-41.7 9.7 L-42.2 8.8 L-43.3 7.9 L-45.1 7.2 L-47.2 6.5 L-48.9 5.7 L-49.6 4.8 L-49.2 3.8 L-48.5 2.8 L-48.2 1.8 L-48.8 0.9 L-50 0 L-51 -1 L-51.2 -1.9 L-50.3 -2.9 L-48.6 -3.7 L-47 -4.5 L-46.2 -5.4 L-46.1 -6.4 L-46.2 -7.4 L-45.8 -8.4 L-44.4 -9.2 L-42.2 -9.9 L-39.7 -10.4 L-37.7 -11 L-36.3 -11.8 L-35.4 -12.7 L-34.2 -13.7 L-32.4 -14.4 L-29.9 -14.8 L-27.1 -15 L-24.4 -15.2 L-22.1 -15.6 L-20.1 -16.2 L-18.1 -17 L-15.9 -17.6 L-13.3 -17.8 L-10.5 -17.7 L-7.7 -17.5 L-5.1 -17.4 L-2.6 -17.6 L-0 -18 L2.7 -18.4 L5.4 -18.4 L8 -18.1 L10.3 -17.5 L12.6 -16.9 L15 -16.6 L17.7 -16.6 L20.6 -16.6 L23.3 -16.5 L25.6 -16 L27.4 -15.2 L28.9 -14.3 L30.5 -13.6 L32.7 -13.1 L35.4 -12.7 L38 -12.3 L40 -11.7 L41.2 -10.8 L41.7 -9.7 L42.2 -8.8 L43.3 -7.9 L45.1 -7.2 L47.2 -6.5 L48.9 -5.7 L49.6 -4.8 L49.2 -3.8 L48.5 -2.8 L48.2 -1.8 L48.8 -0.9 L50 -0 Z" fill="url(#phBrassV)" stroke="#4e2e08" stroke-width="2"/>
+        <ellipse cx="0" cy="0" rx="46.5" ry="15.4" fill="url(#phBell)" stroke="#8a5a16" stroke-width="1"/>
+        <ellipse cx="0" cy="1.5" rx="30" ry="9.5" fill="none" stroke="#e8b45a" stroke-opacity=".25" stroke-width="1.2"/>
+        <ellipse cx="0" cy="2.5" rx="14" ry="4.5" fill="#000" opacity=".55"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= DECK + TURNTABLE ================= -->
+  <g>
+    <polygon class="ph-hit" points="66,214 256,214 278,184 88,184" fill="url(#phDeck)" stroke="#1d0d03" stroke-width="1.5"/>
+    <polygon points="76,210 250,210 268,188 94,188" fill="none" stroke="#f1d28a" stroke-opacity=".5" stroke-width="1"/>
+    <!-- platter rim, felt mat, record -->
+    <ellipse cx="172" cy="201.4" rx="85" ry="14.8" fill="#1a0b03" opacity=".55"/>
+    <ellipse cx="172" cy="200" rx="84" ry="14.6" fill="url(#phBrass)" stroke="#3b200a" stroke-width="1.2"/>
+    <ellipse cx="172" cy="200" rx="80" ry="13.6" fill="url(#phFelt)"/>
+
+    <g transform="translate(172 200) scale(1 .171)">
+      <circle r="76" fill="#0d0d0d"/>
+      <g class="ph-record">
+        <circle r="72" fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="1.4"/>
+        <circle r="66" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="1.4"/>
+        <circle r="60" fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="1.4"/>
+        <circle r="54" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="1.4"/>
+        <circle r="48" fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="1.4"/>
+        <circle r="42" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="1.4"/>
+        <circle r="36" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1.4"/>
+        <!-- scuffs that make the spin readable -->
+        <path d="M58 -6 A58 58 0 0 1 50 26" stroke="#fff" stroke-opacity=".28" stroke-width="2" fill="none"/>
+        <path d="M-40 -30 A50 50 0 0 1 -12 -50" stroke="#fff" stroke-opacity=".22" stroke-width="2" fill="none"/>
+        <path d="M-60 12 A60 60 0 0 0 -34 50" stroke="#fff" stroke-opacity=".18" stroke-width="2" fill="none"/>
+        <circle cx="68" cy="-14" r="1.8" fill="#fff" opacity=".35"/>
+        <!-- label -->
+        <circle r="25" fill="#b5471f"/>
+        <circle r="21" fill="none" stroke="#f1d28a" stroke-width="1.6" stroke-dasharray="7 5"/>
+        <circle r="12.5" fill="#e6c27a"/>
+        <path d="M-10 0h20M0 -10v20" stroke="#8a2f0f" stroke-width="2"/>
+        <rect x="14" y="-3" width="9" height="6" fill="#f6e8c3"/>
+      </g>
+      <circle r="3" fill="#d9a441"/>
+    </g>
+    <!-- fixed light on the vinyl: the record turns, the shine does not -->
+    <g clip-path="url(#phRecClip)">
+      <path d="M172 200 L225 186 L252 186 L200 214 Z" fill="#fff" opacity=".13"/>
+      <path d="M172 200 L112 214 L134 214 L172 200 Z" fill="#fff" opacity=".08"/>
+    </g>
+    <!-- spindle -->
+    <rect x="170.6" y="195" width="2.8" height="5" fill="url(#phBrass)"/>
+    <ellipse cx="172" cy="195" rx="2.4" ry=".9" fill="#fff3c0"/>
+  </g>
+
+  <!-- ================= CRANK (on the side of the cabinet) ================= -->
+  <g transform="translate(267 240)">
+    <g transform="matrix(.6 -.8 0 1 0 0)">
+      <ellipse cx="0" cy="2" rx="12" ry="12" fill="#1a0b03" opacity=".45"/>
+      <circle r="8" fill="url(#phBrass)" stroke="#4a2a0a" stroke-width="1"/>
+      <circle r="4.6" fill="#7a4d12" stroke="#3b200a" stroke-width=".8"/>
+      <g class="ph-crank">
+        <path d="M0 0 L26 0" stroke="#3b200a" stroke-width="6.4" stroke-linecap="round"/>
+        <path d="M0 0 L26 0" stroke="url(#phBrassV)" stroke-width="4.4" stroke-linecap="round"/>
+        <rect x="21" y="-6.5" width="12" height="13" rx="6" fill="#3a1f0a" stroke="#1d0d03" stroke-width="1"/>
+        <rect x="22.6" y="-5" width="4" height="9" rx="2" fill="#a8692b" opacity=".75"/>
+        <circle r="3.4" fill="url(#phBrassV)" stroke="#4a2a0a" stroke-width=".7"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= TONEARM ================= -->
+  <g>
+    <!-- base -->
+    <ellipse cx="262" cy="196" rx="12" ry="3.6" fill="url(#phBrassV)" stroke="#3b200a" stroke-width="1"/>
+    <rect x="257" y="184" width="10" height="12" fill="url(#phBrass)" stroke="#3b200a" stroke-width=".8"/>
+    <ellipse cx="262" cy="184" rx="5" ry="1.8" fill="#fff3c0" stroke="#3b200a" stroke-width=".6"/>
+    <g class="ph-arm">
+      <g class="ph-arm-jit">
+        <!-- counterweight and rear stub -->
+        <path d="M262 181 L276 175" stroke="#4a4a44" stroke-width="3" stroke-linecap="round"/>
+        <rect x="273" y="168" width="9" height="11" rx="3" transform="rotate(-18 277 174)" fill="url(#phChrome)" stroke="#2a2a26" stroke-width=".8"/>
+        <!-- the arm -->
+        <path d="M262 181 C238 181 196 190 170 198 C160 201 154 203 150 206" fill="none" stroke="#2a2a26" stroke-width="4.4" stroke-linecap="round"/>
+        <path d="M262 181 C238 181 196 190 170 198 C160 201 154 203 150 206" fill="none" stroke="url(#phChrome)" stroke-width="2.8" stroke-linecap="round"/>
+        <!-- head shell + cartridge + needle -->
+        <g transform="translate(150 206) rotate(24)">
+          <rect x="-12" y="-3" width="14" height="6" rx="1.6" fill="#1f1a14" stroke="#0e0b08" stroke-width=".7"/>
+          <rect x="-12" y="-3" width="14" height="1.8" rx=".9" fill="#d9a441" opacity=".8"/>
+          <path d="M-9 3 L-10.5 7" stroke="#e8e8e0" stroke-width="1" stroke-linecap="round"/>
+        </g>
+        <circle class="ph-twinkle" cx="137.6" cy="208.4" r="1.5" fill="#fff6c8"/>
+        <!-- pivot cap -->
+        <circle cx="262" cy="181" r="3.2" fill="url(#phBrassV)" stroke="#3b200a" stroke-width=".7"/>
+      </g>
+    </g>
+  </g>
+</svg>
+
+</div>
+
+<noscript><p style="position:fixed;inset:auto 12px 12px;background:#f6e8c3;color:#3a2410;padding:10px;border-radius:6px;font-family:monospace">vibecode-rng needs JavaScript to run the machine.</p></noscript>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/tilt.js"></script>
+<script src="js/machine.js"></script>
+<script src="js/lever.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
