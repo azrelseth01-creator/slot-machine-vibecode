@@ -1,0 +1,92 @@
+/* ================= PHONOGRAPH =================
+   Every animation here loops forever. One "play cycle" lasts 28s:
+   the crank winds, the arm lowers onto the outer groove, tracks inward,
+   lifts off and rests, then it all starts again. The record, horn, lamp,
+   sound waves and notes keep going the whole time. */
+.phono{
+  --cycle:28s; --beat:.536s;
+  position:fixed;left:16px;bottom:2px;z-index:40;width:min(300px,46vw);
+  pointer-events:none;                      /* only the solid parts are clickable */
+  filter:drop-shadow(0 10px 8px rgba(0,0,0,.5));
+}
+.phono svg{display:block;width:100%;height:auto;overflow:visible}
+.phono .ph-hit{pointer-events:auto;cursor:pointer}
+.phono:focus-visible{outline:3px solid var(--gold-hi);outline-offset:4px;border-radius:10px}
+
+/* spinning record (parent group squashes the circle into an ellipse) */
+.ph-record{animation:phSpin 1.8s linear infinite}
+@keyframes phSpin{to{transform:rotate(360deg)}}
+
+/* horn breathes with the beat (112 BPM) */
+.ph-horn{transform-origin:206px 128px;animation:phThrob var(--beat) ease-in-out infinite}
+@keyframes phThrob{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+
+/* glint sliding along the brass */
+.ph-glint{animation:phGlint 5.5s linear infinite}
+@keyframes phGlint{from{stroke-dashoffset:6}to{stroke-dashoffset:-94}}
+
+/* sound rolling out of the bell */
+.ph-wave{transform-box:fill-box;transform-origin:center;opacity:0;animation:phWave 2.14s ease-out infinite}
+@keyframes phWave{
+  0%{transform:translate(0,0) scale(1);opacity:0}
+  12%{opacity:.65}
+  100%{transform:translate(0,-48px) scale(1.7);opacity:0}
+}
+
+/* jewel lamp pulses on the beat */
+.ph-lamp{animation:phLamp var(--beat) ease-in-out infinite alternate}
+@keyframes phLamp{from{opacity:.55}to{opacity:1}}
+
+/* crank: a quick wind at the start of every cycle, then rest (1080deg = 3 turns = same pose) */
+.ph-crank{animation:phCrank var(--cycle) linear infinite}
+@keyframes phCrank{
+  0%{transform:rotate(0);animation-timing-function:cubic-bezier(.45,0,.35,1)}
+  11%{transform:rotate(1080deg)}
+  100%{transform:rotate(1080deg)}
+}
+
+/* tonearm: rest > swing over > lower > track inward > lift > return */
+.ph-arm{transform-origin:262px 181px;animation:phArm var(--cycle) ease-in-out infinite}
+@keyframes phArm{
+  0%,8%{transform:rotate(-5deg) translateY(-9px)}
+  11%{transform:rotate(-2deg) translateY(-9px)}
+  13%{transform:rotate(-2deg) translateY(0)}
+  88%{transform:rotate(2.2deg) translateY(0)}
+  91%{transform:rotate(2.2deg) translateY(-9px)}
+  95%,100%{transform:rotate(-5deg) translateY(-9px)}
+}
+.ph-arm-jit{transform-origin:262px 181px;animation:phJit .27s ease-in-out infinite alternate}
+@keyframes phJit{from{transform:rotate(-.18deg)}to{transform:rotate(.18deg)}}
+.ph-twinkle{transform-box:fill-box;transform-origin:center;animation:phTwinkle 1.3s ease-in-out infinite alternate}
+@keyframes phTwinkle{from{opacity:.15;transform:scale(.6)}to{opacity:1;transform:scale(1.5)}}
+
+/* musical notes drifting out of the horn */
+.phono .notes{position:absolute;inset:0;pointer-events:none}
+.phono .notes span{
+  position:absolute;left:var(--x);top:var(--y);font-size:22px;color:var(--gold-hi);
+  text-shadow:0 2px 4px rgba(0,0,0,.6);opacity:0;animation:phNote 4.8s ease-out infinite;animation-delay:var(--dl);
+}
+@keyframes phNote{
+  0%{opacity:0;transform:translate(0,0) rotate(0) scale(.6)}
+  15%{opacity:1}
+  70%{opacity:.8}
+  100%{opacity:0;transform:translate(var(--dx),-120px) rotate(-22deg) scale(1.15)}
+}
+
+/* "tap for jazz" bubble, gone once music has started */
+.phono .bubble{
+  position:absolute;left:46%;top:3%;background:var(--cream);color:var(--ink);font-size:12px;letter-spacing:1px;
+  padding:6px 10px;border-radius:8px;white-space:nowrap;transition:opacity .4s;box-shadow:0 4px 8px rgba(0,0,0,.4);
+  animation:bob 1.6s ease-in-out infinite;
+}
+.phono .bubble::after{content:"";position:absolute;left:14px;bottom:-6px;border:6px solid transparent;border-top-color:var(--cream);border-bottom:0}
+.music-started .phono .bubble{opacity:0}
+
+@media (max-width:520px){
+  .phono{width:min(190px,48vw);left:2px}
+  .phono .bubble{font-size:10px;padding:4px 7px;left:40%}
+  .phono .notes span{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .ph-horn,.ph-wave,.ph-glint,.ph-lamp,.ph-arm-jit,.ph-twinkle,.phono .notes span,.phono .bubble{animation:none}
+}
